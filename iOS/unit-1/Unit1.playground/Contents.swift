@@ -62,15 +62,43 @@ func assignPlayers(){
     
     
     assignExperienced(numberOfPlayers: d)
+    let avgTeam1 = getAverage(container: teamSharks)
+    let avgTeam2 = getAverage(container: teamDragons)
+    let avgTeam3 = getAverage(container: teamRaptors)
     
-    print(getAverage(container: teamSharks))
-    print(getAverage(container: teamDragons))
-    print(getAverage(container: teamRaptors))
+    print(avgTeam1)
+    print(avgTeam2)
+    print(avgTeam3)
+}
+
+func teamBalancer(){
+    let highest = highestAverage()
+}
+
+func highestAverage() -> (highest: Double, team: Int){
+    let avgTeam1 = getAverage(container: teamSharks)
+    let avgTeam2 = getAverage(container: teamDragons)
+    let avgTeam3 = getAverage(container: teamRaptors)
+    
+    var highest = avgTeam1
+    var team = 1
+    
+    if highest < avgTeam2 {
+        highest = avgTeam2
+        team = 2
+    }
+    
+    if highest < avgTeam3 {
+        highest = avgTeam3
+        team = 3
+    }
+    
+    return (highest, team)
 }
 
 func assignExperienced(numberOfPlayers : Int){
     var count : Int = 0
-    
+    //Assigns experienced players to each base on the numberOfPlayers (number of exp. players / 3)
     if experienced.count > 0 {
         while count < numberOfPlayers {
             teamSharks.append(experienced[0])
@@ -97,6 +125,13 @@ func assignExperienced(numberOfPlayers : Int){
             experienced.remove(at: 0)
             count = count + 1
         }
+    }
+    
+    count = 0
+    //In case the number of experience players is odd, assign the last one
+    if experienced.count > 0 {
+        teamSharks.append(experienced[0])
+        experienced.remove(at: 0)
     }
 }
 
