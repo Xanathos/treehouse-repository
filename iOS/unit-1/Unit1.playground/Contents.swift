@@ -27,6 +27,8 @@ var teamSharks : [[String : Any]] = []
 var teamDragons : [[String : Any]] = []
 var teamRaptors : [[String : Any]] = []
 
+let dates = [["sharks" : "March 17, 1pm", "dragons" : "March 17, 3pm", "raptors" : "March 18, 1pm"]]
+
 //Functions
 
 func getAverage(container : [[String : Any]]) -> Double{
@@ -62,38 +64,117 @@ func assignPlayers(){
     
     
     assignExperienced(numberOfPlayers: d)
+    teamBalancer()
+    
     let avgTeam1 = getAverage(container: teamSharks)
     let avgTeam2 = getAverage(container: teamDragons)
     let avgTeam3 = getAverage(container: teamRaptors)
     
-    print(avgTeam1)
-    print(avgTeam2)
-    print(avgTeam3)
+    
 }
 
 func teamBalancer(){
-    let highest = highestAverage()
+    while nonExperienced.count > 0 {
+        print("NON EXPERIENCED COUNT:\(nonExperienced.count)")
+        //Get the team with the lowest average
+        print("Lowestaverage")
+        let lowestAvg = lowestAverage()
+        //Get the index of tallest non-experienced player
+        print("getTallestPlayer")
+        let tallestPlayer = getTallestPlayer(container: nonExperienced)
+        print("getShortestPair")
+        //Get the indexes of the 2 shortest non-experienced players
+        let shortestPair = getShortestPair(container: nonExperienced)
+        
+        switch lowestAvg.team {
+            case 1:
+                print("CASE 1")
+                teamSharks.append(nonExperienced[tallestPlayer])
+                teamDragons.append(nonExperienced[shortestPair[0]])
+                teamRaptors.append(nonExperienced[shortestPair[1]])
+            case 2:
+                print("CASE 2")
+                teamSharks.append(nonExperienced[shortestPair[0]])
+                teamDragons.append(nonExperienced[tallestPlayer])
+                teamRaptors.append(nonExperienced[shortestPair[1]])
+            case 3:
+                print("CASE 3")
+                teamSharks.append(nonExperienced[shortestPair[0]])
+                teamDragons.append(nonExperienced[shortestPair[1]])
+                teamRaptors.append(nonExperienced[tallestPlayer])
+            default:
+                break
+        }
+        
+        nonExperienced.remove(at: tallestPlayer)
+        nonExperienced.remove(at: shortestPair[0])
+        nonExperienced.remove(at: shortestPair[1])
+    }
 }
 
-func highestAverage() -> (highest: Double, team: Int){
+//Function to get the highest height amongst all non experienced players
+func getTallestPlayer(container : [[String : Any]]) -> Int{
+    var highest : Double = 0.0
+    var index : Int = 0
+    
+    highest = container[0]["height"] as! Double
+    index = 0
+    for i in 1...container.count-1 {
+        if let height = container[i]["height"] as? Double {
+            if height > highest {
+                highest = height
+                index = i
+            }
+        }
+    }
+    
+    return index
+}
+
+//Function to get the indexes of 2 players with the lowest height
+func getShortestPair(container : [[String : Any]]) -> [Int]{
+    var copyContainer = container
+    var lowest : Double = 0.0
+    var index : Int = 0
+    var resultArray : [Int] = []
+    
+    for j in 0...2{
+        lowest = copyContainer[0]["height"] as! Double
+        for i in 1...container.count-1 {
+            if let height = copyContainer[i]["height"] as? Double {
+                if height < lowest {
+                    lowest = height
+                    resultArray.append(i)
+                    copyContainer.remove(at: i)
+                    break
+                }
+            }
+        }
+    }
+    
+    return resultArray
+}
+
+//Function to get lowest average height amongst all teams
+func lowestAverage() -> (lowest: Double, team: Int){
     let avgTeam1 = getAverage(container: teamSharks)
     let avgTeam2 = getAverage(container: teamDragons)
     let avgTeam3 = getAverage(container: teamRaptors)
     
-    var highest = avgTeam1
+    var lowest = avgTeam1
     var team = 1
     
-    if highest < avgTeam2 {
-        highest = avgTeam2
+    if lowest > avgTeam2 {
+        lowest = avgTeam2
         team = 2
     }
     
-    if highest < avgTeam3 {
-        highest = avgTeam3
+    if lowest > avgTeam3 {
+        lowest = avgTeam3
         team = 3
     }
     
-    return (highest, team)
+    return (lowest: lowest, team: team)
 }
 
 func assignExperienced(numberOfPlayers : Int){
@@ -135,6 +216,7 @@ func assignExperienced(numberOfPlayers : Int){
     }
 }
 
+//Filter all players in experienced and non experienced players
 func filterPlayers(){
     for player in players {
         if let exp = player["experience"] as? Bool {
