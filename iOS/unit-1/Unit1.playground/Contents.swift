@@ -80,13 +80,15 @@ func teamBalancer(){
         print("Lowestaverage")
         let lowestAvg = lowestAverage()
         //Get the index of tallest non-experienced player
-        print("getTallestPlayer")
+
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
-        print("getShortestPair")
         //Get the indexes of the 2 shortest non-experienced players
-        let shortestPair = getShortestPair(container: nonExperienced)
         
-        switch lowestAvg.team {
+        if nonExperienced.count % 3 == 0 {
+            let shortestPair = getShortestPair(container: nonExperienced)
+            print("tallestPlayer:\(tallestPlayer)")
+            print("shortestPair:\(shortestPair)")
+            switch lowestAvg.team {
             case 1:
                 print("CASE 1")
                 teamSharks.append(nonExperienced[tallestPlayer])
@@ -104,13 +106,41 @@ func teamBalancer(){
                 teamRaptors.append(nonExperienced[tallestPlayer])
             default:
                 break
+            }
+            
+            nonExperienced.remove(at: tallestPlayer)
+            nonExperienced.remove(at: shortestPair[0])
+            nonExperienced.remove(at: shortestPair[1])
+        }
+        else {
+            let shortestPlayer = getShortestPlayer(container: nonExperienced)
+            print("tallestPlayer:\(tallestPlayer)")
+            print("shortestPlayer:\(shortestPlayer)")
+            switch lowestAvg.team {
+            case 1:
+                print("CASE 1")
+                teamSharks.append(nonExperienced[tallestPlayer])
+                teamDragons.append(nonExperienced[shortestPlayer])
+            case 2:
+                print("CASE 2")
+                teamSharks.append(nonExperienced[shortestPlayer])
+                teamDragons.append(nonExperienced[tallestPlayer])
+            case 3:
+                print("CASE 3")
+                teamDragons.append(nonExperienced[shortestPlayer])
+                teamRaptors.append(nonExperienced[tallestPlayer])
+            default:
+                break
+            }
+            
+            nonExperienced.remove(at: tallestPlayer)
+            nonExperienced.remove(at: shortestPlayer)
+
         }
         
-        nonExperienced.remove(at: tallestPlayer)
-        nonExperienced.remove(at: shortestPair[0])
-        nonExperienced.remove(at: shortestPair[1])
     }
 }
+
 
 //Function to get the highest height amongst all non experienced players
 func getTallestPlayer(container : [[String : Any]]) -> Int{
@@ -131,6 +161,25 @@ func getTallestPlayer(container : [[String : Any]]) -> Int{
     return index
 }
 
+//Function to get the highest height amongst all non experienced players
+func getShortestPlayer(container : [[String : Any]]) -> Int{
+    var shortest : Double = 0.0
+    var index : Int = 0
+    
+    shortest = container[0]["height"] as! Double
+    index = 0
+    for i in 1...container.count-1 {
+        if let height = container[i]["height"] as? Double {
+            if height < shortest {
+                shortest = height
+                index = i
+            }
+        }
+    }
+    
+    return index
+}
+
 //Function to get the indexes of 2 players with the lowest height
 func getShortestPair(container : [[String : Any]]) -> [Int]{
     var copyContainer = container
@@ -138,7 +187,7 @@ func getShortestPair(container : [[String : Any]]) -> [Int]{
     var index : Int = 0
     var resultArray : [Int] = []
     
-    for j in 0...2{
+    for j in 0...1{
         lowest = copyContainer[0]["height"] as! Double
         for i in 1...container.count-1 {
             if let height = copyContainer[i]["height"] as? Double {
@@ -154,6 +203,8 @@ func getShortestPair(container : [[String : Any]]) -> [Int]{
     
     return resultArray
 }
+
+
 
 //Function to get lowest average height amongst all teams
 func lowestAverage() -> (lowest: Double, team: Int){
