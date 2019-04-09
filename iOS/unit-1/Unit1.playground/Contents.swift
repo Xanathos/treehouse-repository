@@ -144,12 +144,19 @@ func teamBalancer(){
 func removeElements(elementIndexes: [Int]){
     var container : [[String : Any]] = []
     
+    //Getting the selected players for delete out of the nonExperienced array
     for element in elementIndexes {
         container.append(nonExperienced[element])
     }
     
+    //If the name of the player in nonExperienced fits with the one selected, remove it
     for element in container{
-        
+        for i in 0...nonExperienced.count-1 {
+            if player["name"] == element["name"] {
+                nonExperienced.remove(at: i)
+                break
+            }
+        }
     }
 }
 
