@@ -80,12 +80,12 @@ func teamBalancer(){
         print("Lowestaverage")
         let lowestAvg = lowestAverage()
         //Get the index of tallest non-experienced player
-
+        print("getTallestPlayer")
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
         //Get the indexes of the 2 shortest non-experienced players
         
         if nonExperienced.count % 3 == 0 {
-            let shortestPair = getShortestPair(container: nonExperienced)
+            let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
             print("tallestPlayer:\(tallestPlayer)")
             print("shortestPair:\(shortestPair)")
             switch lowestAvg.team {
@@ -113,7 +113,7 @@ func teamBalancer(){
             nonExperienced.remove(at: shortestPair[1])
         }
         else {
-            let shortestPlayer = getShortestPlayer(container: nonExperienced)
+            let shortestPlayer = getShortestPlayer(container: nonExperienced, tallestPlayer: tallestPlayer)
             print("tallestPlayer:\(tallestPlayer)")
             print("shortestPlayer:\(shortestPlayer)")
             switch lowestAvg.team {
@@ -141,6 +141,17 @@ func teamBalancer(){
     }
 }
 
+func removeElements(elementIndexes: [Int]){
+    var container : [[String : Any]] = []
+    
+    for element in elementIndexes {
+        container.append(nonExperienced[element])
+    }
+    
+    for element in container{
+        
+    }
+}
 
 //Function to get the highest height amongst all non experienced players
 func getTallestPlayer(container : [[String : Any]]) -> Int{
@@ -162,14 +173,16 @@ func getTallestPlayer(container : [[String : Any]]) -> Int{
 }
 
 //Function to get the highest height amongst all non experienced players
-func getShortestPlayer(container : [[String : Any]]) -> Int{
+func getShortestPlayer(container : [[String : Any]], tallestPlayer : Int) -> Int{
+    var copyContainer = container
+    copyContainer.remove(at: tallestPlayer)
     var shortest : Double = 0.0
     var index : Int = 0
     
-    shortest = container[0]["height"] as! Double
+    shortest = copyContainer[0]["height"] as! Double
     index = 0
-    for i in 1...container.count-1 {
-        if let height = container[i]["height"] as? Double {
+    for i in 1...copyContainer.count-1 {
+        if let height = copyContainer[i]["height"] as? Double {
             if height < shortest {
                 shortest = height
                 index = i
@@ -181,24 +194,41 @@ func getShortestPlayer(container : [[String : Any]]) -> Int{
 }
 
 //Function to get the indexes of 2 players with the lowest height
-func getShortestPair(container : [[String : Any]]) -> [Int]{
+func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [Int]{
     var copyContainer = container
+    //Remove tallestPlayer
+    copyContainer.remove(at: tallestPlayer)
     var lowest : Double = 0.0
     var index : Int = 0
     var resultArray : [Int] = []
     
     for j in 0...1{
         lowest = copyContainer[0]["height"] as! Double
-        for i in 1...container.count-1 {
-            if let height = copyContainer[i]["height"] as? Double {
-                if height < lowest {
-                    lowest = height
+        
+        if copyContainer.count > 2 {
+            for i in 1...copyContainer.count-1 {
+                if let height = copyContainer[i]["height"] as? Double {
+                    if height < lowest {
+                        lowest = height
+                        resultArray.append(i)
+                        copyContainer.remove(at: i)
+                        break
+                    }
+                }
+                
+                if i == copyContainer.count-1{
                     resultArray.append(i)
                     copyContainer.remove(at: i)
-                    break
                 }
             }
         }
+        else if copyContainer.count == 2{
+            resultArray.append(0)
+            resultArray.append(1)
+            copyContainer.removeAll()
+            break
+        }
+
     }
     
     return resultArray
