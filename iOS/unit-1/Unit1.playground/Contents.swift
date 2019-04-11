@@ -66,41 +66,34 @@ func assignPlayers(){
     assignExperienced(numberOfPlayers: d)
     teamBalancer()
     
-    let avgTeam1 = getAverage(container: teamSharks)
-    let avgTeam2 = getAverage(container: teamDragons)
-    let avgTeam3 = getAverage(container: teamRaptors)
-    
-    
 }
 
 func teamBalancer(){
     while nonExperienced.count > 0 {
         print("NON EXPERIENCED COUNT:\(nonExperienced.count)")
-        //Get the team with the lowest average
-        print("Lowestaverage")
+        /***
+         This functions aims to balance the teams in two steps:
+         The first is, once the experienced players have beeen assigned in the previous step
+         the function seeks the lowest team height average, and assigns the tallest player amongs
+         the non experienced players to that team. Also gets the two shortest players in that moment
+         and assigns it to the other two teams. The function repeats the process until all players
+         have been assigned.
+         ***/
         let lowestAvg = lowestAverage()
-        //Get the index of tallest non-experienced player
-        print("getTallestPlayer")
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
-        //Get the indexes of the 2 shortest non-experienced players
         
         if nonExperienced.count % 3 == 0 {
             let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
-            print("tallestPlayer:\(tallestPlayer)")
-            print("shortestPair:\(shortestPair)")
             switch lowestAvg.team {
             case 1:
-                print("CASE 1")
                 teamSharks.append(nonExperienced[tallestPlayer])
                 teamDragons.append(nonExperienced[shortestPair[0]])
                 teamRaptors.append(nonExperienced[shortestPair[1]])
             case 2:
-                print("CASE 2")
                 teamSharks.append(nonExperienced[shortestPair[0]])
                 teamDragons.append(nonExperienced[tallestPlayer])
                 teamRaptors.append(nonExperienced[shortestPair[1]])
             case 3:
-                print("CASE 3")
                 teamSharks.append(nonExperienced[shortestPair[0]])
                 teamDragons.append(nonExperienced[shortestPair[1]])
                 teamRaptors.append(nonExperienced[tallestPlayer])
@@ -108,35 +101,118 @@ func teamBalancer(){
                 break
             }
             
-            nonExperienced.remove(at: tallestPlayer)
-            nonExperienced.remove(at: shortestPair[0])
-            nonExperienced.remove(at: shortestPair[1])
+            let indexArray = [tallestPlayer, shortestPair[0], shortestPair[1]]
+            removeElements(elementIndexes: indexArray)
         }
         else {
             let shortestPlayer = getShortestPlayer(container: nonExperienced, tallestPlayer: tallestPlayer)
-            print("tallestPlayer:\(tallestPlayer)")
-            print("shortestPlayer:\(shortestPlayer)")
             switch lowestAvg.team {
             case 1:
-                print("CASE 1")
                 teamSharks.append(nonExperienced[tallestPlayer])
                 teamDragons.append(nonExperienced[shortestPlayer])
             case 2:
-                print("CASE 2")
                 teamSharks.append(nonExperienced[shortestPlayer])
                 teamDragons.append(nonExperienced[tallestPlayer])
             case 3:
-                print("CASE 3")
                 teamDragons.append(nonExperienced[shortestPlayer])
                 teamRaptors.append(nonExperienced[tallestPlayer])
             default:
                 break
             }
             
-            nonExperienced.remove(at: tallestPlayer)
-            nonExperienced.remove(at: shortestPlayer)
-
+            let indexArray = [tallestPlayer, shortestPlayer]
+            removeElements(elementIndexes: indexArray)
         }
+        
+    }
+    
+    if players.count % 3 == 0 {
+        var count1 = teamSharks.count
+        var count2 = teamDragons.count
+        var count3 = teamRaptors.count
+        
+        while !(count1 == count2 && count1 == count3) {
+            count1 = teamSharks.count
+            count2 = teamDragons.count
+            count3 = teamRaptors.count
+            
+            var highestCount = ""
+            var lowestCount = ""
+            
+            if count1 > count2 {
+                if count1 > count3 {
+                    highestCount = "sharks"
+                }
+                else {
+                    highestCount = "raptors"
+                }
+            }
+            else {
+                if count2 > count3 {
+                    highestCount = "dragons"
+                }
+                else {
+                    highestCount = "raptors"
+                }
+            }
+            
+            
+            if count1 < count2 {
+                if count1 < count3 {
+                    lowestCount = "sharks"
+                }
+                else {
+                    lowestCount = "raptors"
+                }
+            }
+            else {
+                if count2 < count3 {
+                    lowestCount = "dragons"
+                }
+                else {
+                    lowestCount = "raptors"
+                }
+            }
+            
+            print(lowestCount)
+            
+            var readjustment : [String : Any] = [:]
+            switch highestCount {
+                case "sharks":
+                    if let re = teamSharks.last {
+                        readjustment = re
+                        print("readjustment:\(readjustment)")
+                    }
+                    teamSharks.removeLast()
+                case "dragons":
+                    if let re = teamDragons.last {
+                        readjustment = re
+                    }
+                    teamDragons.removeLast()
+                case "raptors":
+                    if let re = teamRaptors.last {
+                        readjustment = re
+                    }
+                    teamRaptors.removeLast()
+                default:
+                    break
+            }
+            
+            switch lowestCount {
+                case "sharks":
+                    teamSharks.append(readjustment)
+                case "dragons":
+                    teamDragons.append(readjustment)
+                case "raptors":
+                    teamRaptors.append(readjustment)
+                default:
+                    break
+            }
+            
+            
+        }
+    }
+    else {
         
     }
 }
@@ -152,9 +228,13 @@ func removeElements(elementIndexes: [Int]){
     //If the name of the player in nonExperienced fits with the one selected, remove it
     for element in container{
         for i in 0...nonExperienced.count-1 {
-            if player["name"] == element["name"] {
-                nonExperienced.remove(at: i)
-                break
+            if let element2 = element["name"] as? String{
+                if let player = nonExperienced[i]["name"] as? String{
+                    if element2 == player {
+                        nonExperienced.remove(at: i)
+                        break
+                    }
+                }
             }
         }
     }
