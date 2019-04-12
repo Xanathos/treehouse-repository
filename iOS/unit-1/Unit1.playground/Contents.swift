@@ -27,7 +27,12 @@ var teamSharks : [[String : Any]] = []
 var teamDragons : [[String : Any]] = []
 var teamRaptors : [[String : Any]] = []
 
-let dates = [["sharks" : "March 17, 1pm", "dragons" : "March 17, 3pm", "raptors" : "March 18, 1pm"]]
+var letters : [String] = []
+
+let dates = ["Sharks" : "March 17, 1pm", "Dragons" : "March 17, 3pm", "Raptors" : "March 18, 1pm"]
+let messages = ["Sharks" : "don't try to star in Jaws movie or something, ok?",
+                "Dragons" : "don't try to star in Game of Thrones or something, ok?",
+                "Raptors" : "don't try to star in Jurassic World or something, ok?"]
 
 //Functions
 
@@ -66,11 +71,48 @@ func assignPlayers(){
     assignExperienced(numberOfPlayers: d)
     teamBalancer()
     
+    letterGenerator(container: teamSharks)
+    letterGenerator(container: teamDragons)
+    letterGenerator(container: teamRaptors)
+    
+    for i in letters {
+        print(i)
+    }
+    
+}
+
+func letterGenerator(container : [[String : Any]]){
+    for player in container {
+        if let playerName = player["name"] as? String,
+            let teamName = player["team"] as? String,
+            let guardianName = player["guardians"] as? String,
+            let startDate = dates[teamName],
+            let message = messages[teamName]
+        {
+            letters.append(generate(teamName: teamName, playerName: playerName, startDate: startDate, guardianNames: guardianName, message: message))
+        }
+        
+    }
+}
+
+func generate(teamName : String,
+              playerName : String,
+              startDate : String,
+              guardianNames : String,
+              message: String) -> String{
+    
+        return """
+        Greetings, \(guardianNames). Congratulations on the acceptance of \(playerName) to the \(teamName) soccer team.
+        The first practice will be held in the following date: \(startDate) so all players of the team are expected to be
+        there.
+        
+        We hope that we see he/she there, and please \(message)
+        """
+    
 }
 
 func teamBalancer(){
     while nonExperienced.count > 0 {
-        print("NON EXPERIENCED COUNT:\(nonExperienced.count)")
         /***
          This functions aims to balance the teams in two steps:
          The first is, once the experienced players have beeen assigned in the previous step
@@ -174,14 +216,12 @@ func teamBalancer(){
                 }
             }
             
-            print(lowestCount)
             
             var readjustment : [String : Any] = [:]
             switch highestCount {
                 case "sharks":
                     if let re = teamSharks.last {
                         readjustment = re
-                        print("readjustment:\(readjustment)")
                     }
                     teamSharks.removeLast()
                 case "dragons":
@@ -212,9 +252,19 @@ func teamBalancer(){
             
         }
     }
-    else {
-        
+    
+    for i in 0...teamSharks.count - 1 {
+        teamSharks[i]["team"] = "Sharks"
     }
+    
+    for i in 0...teamDragons.count - 1 {
+        teamDragons[i]["team"] = "Dragons"
+    }
+    
+    for i in 0...teamRaptors.count - 1 {
+        teamRaptors[i]["team"] = "Raptors"
+    }
+    
 }
 
 func removeElements(elementIndexes: [Int]){
@@ -286,7 +336,6 @@ func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [Int]
     //Remove tallestPlayer
     copyContainer.remove(at: tallestPlayer)
     var lowest : Double = 0.0
-    var index : Int = 0
     var resultArray : [Int] = []
     
     for j in 0...1{
