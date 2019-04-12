@@ -75,9 +75,17 @@ func assignPlayers(){
     letterGenerator(container: teamDragons)
     letterGenerator(container: teamRaptors)
     
-    for i in letters {
-        print(i)
+    for letter in letters {
+        print(letter)
     }
+    
+    let avg1 = getAverage(container: teamSharks)
+    let avg2 = getAverage(container: teamDragons)
+    let avg3 = getAverage(container: teamRaptors)
+    
+    print("Team Sharks Average: \(avg1)")
+    print("Team Dragons Average:\(avg2)")
+    print("Team Raptors Average:\(avg3)")
     
 }
 
