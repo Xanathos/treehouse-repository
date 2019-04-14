@@ -15,7 +15,7 @@ let players = [["name" : "Joe Smith", "height" : 42.0, "experience" : true, "gua
                ["name" : "Ben Finkelstein", "height" : 44.0, "experience" : false, "guardians" : "Aaron and Jill Finkelstein"],
                ["name" : "Diego Soto", "height" : 41.0, "experience" : true, "guardians" : "Robin and Sarika Soto"],
                ["name" : "Chloe Alaska", "height" : 47.0, "experience" : false, "guardians" : "David and Jamie Alaska"],
-               ["name" : "Arnold Willis", "height" : 41.0, "experience" : true, "guardians" : "Claire Willis"],
+               ["name" : "Arnold Willis", "height" : 41.0, "experience" : false, "guardians" : "Claire Willis"],
                ["name" : "Phillip Helm", "height" : 44.0, "experience" : true, "guardians" : "Thomas Helm and Eva Jones"],
                ["name" : "Les Clay", "height" : 42.0, "experience" : true, "guardians" : "Wynonna Brown"],
                ["name" : "Herschel Krustofski", "height" : 45.0, "experience" : true, "guardians" : "Hyman and Rachel Krustofski"]]
@@ -29,7 +29,7 @@ var teamRaptors : [[String : Any]] = []
 
 var letters : [String] = []
 
-let dates = ["Sharks" : "March 17, 1pm", "Dragons" : "March 17, 3pm", "Raptors" : "March 18, 1pm"]
+let dates = ["Sharks" : "March 17, 3pm", "Dragons" : "March 17, 1pm", "Raptors" : "March 18, 1pm"]
 let messages = ["Sharks" : "don't try to star in Jaws movie or something, ok?",
                 "Dragons" : "don't try to star in Game of Thrones or something, ok?",
                 "Raptors" : "don't try to star in Jurassic World or something, ok?"]
@@ -60,15 +60,19 @@ func countContainer(container : [[String : Any]]) -> Double{
     return sum
 }
 
+func getExpPlayersPerTeam() -> Int{
+    let league = [teamSharks, teamDragons, teamRaptors]
+    let experiencedPerTeam = experienced.count / league.count
+    
+    return experiencedPerTeam
+}
 
 func assignPlayers(){
     filterPlayers()
     
-    let n = experienced.count
-    let d = n / 3
+    let nExpPT = getExpPlayersPerTeam()
     
-    
-    assignExperienced(numberOfPlayers: d)
+    assignExperienced(numberOfPlayers: nExpPT)
     teamBalancer()
     
     letterGenerator(container: teamSharks)
@@ -119,6 +123,17 @@ func generate(teamName : String,
     
 }
 
+
+func isEven() -> Bool{
+    let league = [teamSharks, teamDragons, teamRaptors]
+    if players.count % league.count == 0 {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
 func teamBalancer(){
     while nonExperienced.count > 0 {
         /***
@@ -132,18 +147,18 @@ func teamBalancer(){
         let lowestAvg = lowestAverage()
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
         
-        if nonExperienced.count % 3 == 0 {
+        if isEven() {
             let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
             switch lowestAvg.team {
-            case 1:
+            case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
                 teamDragons.append(nonExperienced[shortestPair[0]])
                 teamRaptors.append(nonExperienced[shortestPair[1]])
-            case 2:
+            case "dragons":
                 teamSharks.append(nonExperienced[shortestPair[0]])
                 teamDragons.append(nonExperienced[tallestPlayer])
                 teamRaptors.append(nonExperienced[shortestPair[1]])
-            case 3:
+            case "raptors":
                 teamSharks.append(nonExperienced[shortestPair[0]])
                 teamDragons.append(nonExperienced[shortestPair[1]])
                 teamRaptors.append(nonExperienced[tallestPlayer])
@@ -157,13 +172,13 @@ func teamBalancer(){
         else {
             let shortestPlayer = getShortestPlayer(container: nonExperienced, tallestPlayer: tallestPlayer)
             switch lowestAvg.team {
-            case 1:
+            case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
                 teamDragons.append(nonExperienced[shortestPlayer])
-            case 2:
+            case "dragons":
                 teamSharks.append(nonExperienced[shortestPlayer])
                 teamDragons.append(nonExperienced[tallestPlayer])
-            case 3:
+            case "raptors":
                 teamDragons.append(nonExperienced[shortestPlayer])
                 teamRaptors.append(nonExperienced[tallestPlayer])
             default:
@@ -381,22 +396,22 @@ func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [Int]
 
 
 //Function to get lowest average height amongst all teams
-func lowestAverage() -> (lowest: Double, team: Int){
+func lowestAverage() -> (lowest: Double, team: String){
     let avgTeam1 = getAverage(container: teamSharks)
     let avgTeam2 = getAverage(container: teamDragons)
     let avgTeam3 = getAverage(container: teamRaptors)
     
     var lowest = avgTeam1
-    var team = 1
+    var team = "sharks"
     
     if lowest > avgTeam2 {
         lowest = avgTeam2
-        team = 2
+        team = "dragons"
     }
     
     if lowest > avgTeam3 {
         lowest = avgTeam3
-        team = 3
+        team = "raptors"
     }
     
     return (lowest: lowest, team: team)
