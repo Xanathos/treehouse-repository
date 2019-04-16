@@ -72,9 +72,12 @@ func assignPlayers(){
     
     let nExpPT = getExpPlayersPerTeam()
     
+    print("getnExpPT")
     assignExperienced(numberOfPlayers: nExpPT)
+    print("assignExperienced")
     teamBalancer()
     
+    print("teamBalancer")
     letterGenerator(container: teamSharks)
     letterGenerator(container: teamDragons)
     letterGenerator(container: teamRaptors)
@@ -146,9 +149,11 @@ func teamBalancer(){
          ***/
         let lowestAvg = lowestAverage()
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
-        
+        print("tallestPlayer:\(tallestPlayer)")
+        print("nonExperienced:\(nonExperienced.count)")
         if isEven() {
             let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
+            print("shortestPair:\(shortestPair)")
             switch lowestAvg.team {
             case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
@@ -171,6 +176,7 @@ func teamBalancer(){
         }
         else {
             let shortestPlayer = getShortestPlayer(container: nonExperienced, tallestPlayer: tallestPlayer)
+            print("shortestPlayer:\(shortestPlayer)")
             switch lowestAvg.team {
             case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
@@ -191,7 +197,7 @@ func teamBalancer(){
         
     }
     
-    if players.count % 3 == 0 {
+    if isEven() {
         var count1 = teamSharks.count
         var count2 = teamDragons.count
         var count3 = teamRaptors.count
@@ -288,6 +294,19 @@ func teamBalancer(){
         teamRaptors[i]["team"] = "Raptors"
     }
     
+}
+
+func getIndex(nonExperiencedPlayer: [String : Any]) -> Int{
+    for i in 0...nonExperienced.count-1 {
+        if let player1 = nonExperienced[i]["name"] as? String,
+           let player2 = nonExperiencedPlayer["player"] as? String{
+            if player1 == player2{
+                return i
+            }
+        }
+    }
+    
+    return -1
 }
 
 func removeElements(elementIndexes: [Int]){
@@ -393,6 +412,43 @@ func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [Int]
     return resultArray
 }
 
+func proxy(container : [[String : Any]], tallestPlayer : Int) -> [[String : Any]] {
+    var copyContainer = container
+    //Remove tallestPlayer
+    copyContainer.remove(at: tallestPlayer)
+    var lowest : Double = 0.0
+    var resultArray : [[String : Any]] = []
+    
+    for j in 0...1 {
+        lowest = copyContainer[0]["height"] as! Double
+        
+        if copyContainer.count > 2 {
+            for i in 1...copyContainer.count-1 {
+                if let height = copyContainer[i]["height"] as? Double {
+                    if height < lowest {
+                        lowest = height
+                        resultArray.append(copyContainer[i])
+                        copyContainer.remove(at: i)
+                        break
+                    }
+                }
+                
+                if i == copyContainer.count-1{
+                    resultArray.append(copyContainer[i])
+                    copyContainer.remove(at: i)
+                }
+            }
+        }
+        else if copyContainer.count == 2{
+            resultArray.append(copyContainer[0])
+            resultArray.append(copyContainer[1])
+            copyContainer.removeAll()
+            break
+        }
+    }
+    
+    return resultArray
+}
 
 
 //Function to get lowest average height amongst all teams
