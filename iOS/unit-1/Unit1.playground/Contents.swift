@@ -72,12 +72,9 @@ func assignPlayers(){
     
     let nExpPT = getExpPlayersPerTeam()
     
-    print("getnExpPT")
     assignExperienced(numberOfPlayers: nExpPT)
-    print("assignExperienced")
     teamBalancer()
     
-    print("teamBalancer")
     letterGenerator(container: teamSharks)
     letterGenerator(container: teamDragons)
     letterGenerator(container: teamRaptors)
@@ -92,7 +89,7 @@ func assignPlayers(){
     
     print("Team Sharks Average: \(avg1)")
     print("Team Dragons Average:\(avg2)")
-    print("Team Raptors Average:\(avg3)")
+    print("Team Dragons Average:\(avg3)")
     
 }
 
@@ -153,25 +150,26 @@ func teamBalancer(){
         print("nonExperienced:\(nonExperienced.count)")
         if isEven() {
             let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
-            print("shortestPair:\(shortestPair)")
+            print("shortestPair:\(getIndex(nonExperiencedPlayer: shortestPair[0])), \(getIndex(nonExperiencedPlayer: shortestPair[1]))")
             switch lowestAvg.team {
             case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
-                teamDragons.append(nonExperienced[shortestPair[0]])
-                teamRaptors.append(nonExperienced[shortestPair[1]])
+                teamDragons.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[0])])
+                teamRaptors.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[1])])
             case "dragons":
-                teamSharks.append(nonExperienced[shortestPair[0]])
+                teamSharks.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[0])])
                 teamDragons.append(nonExperienced[tallestPlayer])
-                teamRaptors.append(nonExperienced[shortestPair[1]])
+                teamRaptors.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[1])])
             case "raptors":
-                teamSharks.append(nonExperienced[shortestPair[0]])
-                teamDragons.append(nonExperienced[shortestPair[1]])
+                teamSharks.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[0])])
+                teamDragons.append(nonExperienced[getIndex(nonExperiencedPlayer: shortestPair[1])])
                 teamRaptors.append(nonExperienced[tallestPlayer])
             default:
                 break
             }
-            
-            let indexArray = [tallestPlayer, shortestPair[0], shortestPair[1]]
+            let indexArray = [tallestPlayer,
+                              getIndex(nonExperiencedPlayer: shortestPair[0]),
+                              getIndex(nonExperiencedPlayer: shortestPair[1])]
             removeElements(elementIndexes: indexArray)
         }
         else {
@@ -299,7 +297,7 @@ func teamBalancer(){
 func getIndex(nonExperiencedPlayer: [String : Any]) -> Int{
     for i in 0...nonExperienced.count-1 {
         if let player1 = nonExperienced[i]["name"] as? String,
-           let player2 = nonExperiencedPlayer["player"] as? String{
+           let player2 = nonExperiencedPlayer["name"] as? String{
             if player1 == player2{
                 return i
             }
@@ -372,47 +370,8 @@ func getShortestPlayer(container : [[String : Any]], tallestPlayer : Int) -> Int
     return index
 }
 
-//Function to get the indexes of 2 players with the lowest height
-func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [Int]{
-    var copyContainer = container
-    //Remove tallestPlayer
-    copyContainer.remove(at: tallestPlayer)
-    var lowest : Double = 0.0
-    var resultArray : [Int] = []
-    
-    for j in 0...1{
-        lowest = copyContainer[0]["height"] as! Double
-        
-        if copyContainer.count > 2 {
-            for i in 1...copyContainer.count-1 {
-                if let height = copyContainer[i]["height"] as? Double {
-                    if height < lowest {
-                        lowest = height
-                        resultArray.append(i)
-                        copyContainer.remove(at: i)
-                        break
-                    }
-                }
-                
-                if i == copyContainer.count-1{
-                    resultArray.append(i)
-                    copyContainer.remove(at: i)
-                }
-            }
-        }
-        else if copyContainer.count == 2{
-            resultArray.append(0)
-            resultArray.append(1)
-            copyContainer.removeAll()
-            break
-        }
 
-    }
-    
-    return resultArray
-}
-
-func proxy(container : [[String : Any]], tallestPlayer : Int) -> [[String : Any]] {
+func getShortestPair(container : [[String : Any]], tallestPlayer : Int) -> [[String : Any]] {
     var copyContainer = container
     //Remove tallestPlayer
     copyContainer.remove(at: tallestPlayer)
