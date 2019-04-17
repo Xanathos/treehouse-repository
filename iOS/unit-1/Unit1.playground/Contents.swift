@@ -146,11 +146,8 @@ func teamBalancer(){
          ***/
         let lowestAvg = lowestAverage()
         let tallestPlayer = getTallestPlayer(container: nonExperienced)
-        print("tallestPlayer:\(tallestPlayer)")
-        print("nonExperienced:\(nonExperienced.count)")
         if isEven() {
             let shortestPair = getShortestPair(container: nonExperienced, tallestPlayer: tallestPlayer)
-            print("shortestPair:\(getIndex(nonExperiencedPlayer: shortestPair[0])), \(getIndex(nonExperiencedPlayer: shortestPair[1]))")
             switch lowestAvg.team {
             case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
@@ -174,7 +171,6 @@ func teamBalancer(){
         }
         else {
             let shortestPlayer = getShortestPlayer(container: nonExperienced, tallestPlayer: tallestPlayer)
-            print("shortestPlayer:\(shortestPlayer)")
             switch lowestAvg.team {
             case "sharks":
                 teamSharks.append(nonExperienced[tallestPlayer])
